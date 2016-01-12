@@ -9,7 +9,9 @@
 	</form>
 
 	<table id="habit_list_table">
-		<tr><td>{{ new_habit_text }}</td></tr>
+		{% for habit in habits %}
+		<tr><td>{{ habit.text }}</td></tr>
+		{% endfor %}
 	</table>
 </body>
 </html>

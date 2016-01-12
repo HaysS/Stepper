@@ -1,6 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from habit_lists.models import Habit
 
 def home_page(request):
-	return render(request, 'home.html', {
-		'new_habit_text': request.POST.get('habit_text', ''),
-	})
+	if request.method == 'POST':
+		Habit.objects.create(text=request.POST['habit_text'])
+		return redirect('/')
+
+	habits = Habit.objects.all()
+	return render(request, 'home.html', {'habits': habits})
