@@ -19,6 +19,7 @@ from habit_lists import views as habit_lists_views
 
 urlpatterns = [
     	url(r'^$', habit_lists_views.home_page, name='home'),
+	url(r'^habit_lists/new', habit_lists_views.new_habit_list, name='new_habit_list'),
 	url(r'^habit_lists/only-habit-list/$', habit_lists_views.view_habit_list, name='view_list'),
 	#url(r'^admin/', include(admin.site.urls)),
 ]

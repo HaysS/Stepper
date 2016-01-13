@@ -3,7 +3,7 @@
 	<title>Stepper</title>
 	
 	<h1>Habit List</h1>
-	<form method="POST" action="/">
+	<form method="POST" action="/habit_lists/new">
 		<input name="habit_text" id="new_habit" placeholder="Enter a new habit" />
 		{% csrf_token %}
 	</form>
