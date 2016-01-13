@@ -29,7 +29,7 @@ class NewVisitorTest(LiveServerTestCase):
 		
 		first_habit_list_url = self.browser.current_url
 		self.assertRegex(first_habit_list_url, '/habit_lists/.+')
-		self.check_for_row_in_list_table('Brush teeth')
+		self.check_for_row_in_habit_list_table('Brush teeth')
 
 		#User enters "Go to bed early" as a new habit.
 		new_habit_elem = self.browser.find_element_by_id('new_habit')

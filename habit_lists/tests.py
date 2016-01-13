@@ -37,22 +37,12 @@ class HomePageTest(TestCase):
 		response = home_page(request)
 
 		self.assertEqual(response.status_code, 302)
-		self.assertEqual(response['location'], '/')
+		self.assertEqual(response['location'], '/habit_lists/only-habit-list/')
 
 	def test_home_page_only_saves_habits_when_necessary(self):
 		request = HttpRequest()
 		home_page(request)
 		self.assertEqual(Habit.objects.count(), 0)
-
-	def test_home_page_displays_all_habits(self):
-		Habit.objects.create(text='habit 1')
-		Habit.objects.create(text='habit 2')
-		
-		request = HttpRequest()
-		response = home_page(request)
-
-		self.assertIn('habit 1', response.content.decode())
-		self.assertIn('habit 2', response.content.decode())
 
 class HabitModelTest(TestCase):
 
@@ -72,3 +62,14 @@ class HabitModelTest(TestCase):
 		second_saved_habit = saved_habits[1]
 		self.assertEqual(first_saved_habit.text, 'The first habit')
 		self.assertEqual(second_saved_habit.text, 'The second habit')
+
+class ListViewTest(TestCase):
+	
+	def test_home_page_displays_all_habits(self):
+		Habit.objects.create(text='habit 1')
+		Habit.objects.create(text='habit 2')
+		
+		response = self.client.get('/habit_lists/only-habit-list/')
+
+		self.assertContains(response, 'habit 1')
+		self.assertContains(response, 'habit 2')
