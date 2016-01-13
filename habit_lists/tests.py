@@ -3,7 +3,7 @@ from django.core.urlresolvers import resolve
 from django.test import TestCase
 from django.template.loader import render_to_string
 
-from habit_lists.models import Habit
+from habit_lists.models import Habit, HabitList
 from habit_lists.views import home_page
 
 class HomePageTest(TestCase):
@@ -18,16 +18,24 @@ class HomePageTest(TestCase):
 		expected_html = render_to_string('home.html')
 		self.assertEqual(response.content.decode(), expected_html)
 
-class HabitModelTest(TestCase):
+class HabitAndHabitListModelTest(TestCase):
 
 	def test_saving_and_retrieving_habits(self):
+		habit_list_ = HabitList()
+		habit_list_.save()
+
 		first_habit = Habit()
 		first_habit.text = 'The first habit'
+		first_habit.habit_list = habit_list_
 		first_habit.save()
 
 		second_habit = Habit()
 		second_habit.text = 'The second habit'
+		second_habit.habit_list = habit_list_
 		second_habit.save()
+
+		saved_habit_list = HabitList.objects.first()
+		self.assertEqual(saved_habit_list, habit_list_)
 
 		saved_habits = Habit.objects.all()
 		self.assertEqual(saved_habits.count(), 2)
@@ -35,17 +43,20 @@ class HabitModelTest(TestCase):
 		first_saved_habit = saved_habits[0]
 		second_saved_habit = saved_habits[1]
 		self.assertEqual(first_saved_habit.text, 'The first habit')
+		self.assertEqual(first_saved_habit.habit_list, habit_list_)
 		self.assertEqual(second_saved_habit.text, 'The second habit')
+		self.assertEqual(second_saved_habit.habit_list, habit_list_)
 
-class ListViewTest(TestCase):
+class HabitListViewTest(TestCase):
 
-	def test_uses_list_template(self):
+	def test_uses_habit_list_template(self):
 		response = self.client.get('/habit_lists/only-habit-list/')
 		self.assertTemplateUsed(response, 'habit_list.html')	
 
 	def test_home_page_displays_all_habits(self):
-		Habit.objects.create(text='habit 1')
-		Habit.objects.create(text='habit 2')
+		habit_list_ = HabitList.objects.create()
+		Habit.objects.create(text='habit 1', habit_list=habit_list_)
+		Habit.objects.create(text='habit 2', habit_list=habit_list_)
 		
 		response = self.client.get('/habit_lists/only-habit-list/')
 
