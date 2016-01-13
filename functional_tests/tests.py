@@ -26,6 +26,10 @@ class NewVisitorTest(LiveServerTestCase):
 		new_habit_elem = self.browser.find_element_by_id('new_habit')
 		new_habit_elem.send_keys('Brush teeth')
 		new_habit_elem.send_keys(Keys.ENTER)
+		
+		first_habit_list_url = self.browser.current_url
+		self.assertRegex(first_habit_list_url, '/habit_lists/.+')
+		self.check_for_row_in_list_table('Brush teeth')
 
 		#User enters "Go to bed early" as a new habit.
 		new_habit_elem = self.browser.find_element_by_id('new_habit')
@@ -36,5 +40,27 @@ class NewVisitorTest(LiveServerTestCase):
 		self.check_for_row_in_habit_list_table('Brush teeth')
 		self.check_for_row_in_habit_list_table('Go to bed early')
 
-if __name__ == '__main__':
-	unittest.main(warnings='ignore')
+		#The first user quits, and then the second user opens
+		#the site.
+		self.browser.quit()
+		self.browser = webdriver.Firefox()
+		self.browser.get(self.live_server_url)
+		
+		#Check to make sure the first users data is not presented
+		#to the second user.
+		page_text = self.browser.find_element_by_tag_name('body').text
+		self.assertNotIn('Brush teeth', page_text)
+		self.assertNotIn('Go to bed early', page_text)
+
+		#Second user enters "Read for 20 minutes" as a new habit.
+		new_habit_elem = self.browser.find_element_by_id('new_habit')
+		new_habit_elem.send_keys('Read for 20 minutes')
+		new_habit_elem.send_keys(Keys.ENTER)
+
+		#Make sure second user gets a unique url.
+		second_habit_list_url = self.browser.current_url
+		self.assertRegex(second_habit_list_url, '/habit_lists/.+')
+		self.assertNotEqual(second_habit_list_url, first_habit_list_url)
+
+
+
