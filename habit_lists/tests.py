@@ -64,7 +64,11 @@ class HabitModelTest(TestCase):
 		self.assertEqual(second_saved_habit.text, 'The second habit')
 
 class ListViewTest(TestCase):
-	
+
+	def test_uses_list_template(self):
+		response = self.client.get('/habit_lists/only-habit-list/')
+		self.assertTemplateUsed(response, 'habit_list.html')	
+
 	def test_home_page_displays_all_habits(self):
 		Habit.objects.create(text='habit 1')
 		Habit.objects.create(text='habit 2')

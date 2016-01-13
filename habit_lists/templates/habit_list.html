@@ -3,9 +3,15 @@
 	<title>Stepper</title>
 	
 	<h1>Habit List</h1>
-	<form method="POST">
+	<form method="POST" action="/">
 		<input name="habit_text" id="new_habit" placeholder="Enter a new habit" />
 		{% csrf_token %}
 	</form>
+
+	<table id="habit_list_table">
+		{% for habit in habits %}
+		<tr><td>{{ habit.text }}</td></tr>
+		{% endfor %}
+	</table>
 </body>
 </html>
