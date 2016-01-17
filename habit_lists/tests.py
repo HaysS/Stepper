@@ -53,6 +53,8 @@ class HabitListViewTest(TestCase):
 		response = self.client.get('/habit_lists/only-habit-list/')
 		self.assertTemplateUsed(response, 'habit_list.html')	
 
+class ListViewTest(TestCase):
+	
 	def test_home_page_displays_all_habits(self):
 		habit_list_ = HabitList.objects.create()
 		Habit.objects.create(text='habit 1', habit_list=habit_list_)
