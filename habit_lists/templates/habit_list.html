@@ -3,13 +3,13 @@
 	<title>Stepper</title>
 	
 	<h1>Habit List</h1>
-	<form method="POST" action="/habit_lists/new">
+	<form method="POST" action="/habit_lists/{{ habit_list.id }}/add_habit">
 		<input name="habit_text" id="new_habit" placeholder="Enter a new habit" />
 		{% csrf_token %}
 	</form>
 
 	<table id="habit_list_table">
-		{% for habit in habits %}
+		{% for habit in habit_list.habit_set.all %}
 		<tr><td>{{ habit.text }}</td></tr>
 		{% endfor %}
 	</table>

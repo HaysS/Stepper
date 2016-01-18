@@ -50,37 +50,63 @@ class HabitAndHabitListModelTest(TestCase):
 class HabitListViewTest(TestCase):
 
 	def test_uses_habit_list_template(self):
-		response = self.client.get('/habit_lists/only-habit-list/')
+		new_habit_list = HabitList.objects.create()
+		response = self.client.get('/habit_lists/%d/' % (new_habit_list.id,))
 		self.assertTemplateUsed(response, 'habit_list.html')	
 
 class ListViewTest(TestCase):
 	
-	def test_home_page_displays_all_habits(self):
+	def test_uses_list_template(self):
 		habit_list_ = HabitList.objects.create()
-		Habit.objects.create(text='habit 1', habit_list=habit_list_)
-		Habit.objects.create(text='habit 2', habit_list=habit_list_)
-		
-		response = self.client.get('/habit_lists/only-habit-list/')
+		response = self.client.get('/habit_lists/%d/' % (habit_list_.id,))
+		self.assertTemplateUsed(response, 'habit_list.html')
+	
+	def test_displays_only_habits_for_that_habit_list(self):
+		correct_habit_list = HabitList.objects.create()
+		Habit.objects.create(text='habit 1', habit_list=correct_habit_list)
+		Habit.objects.create(text='habit 2', habit_list=correct_habit_list)
+		other_habit_list = HabitList.objects.create()
+		Habit.objects.create(text='other habit 1', habit_list=other_habit_list)
+		Habit.objects.create(text='other habit 2', habit_list=other_habit_list)
 
+		response = self.client.get('/habit_lists/%d/' % (correct_habit_list.id,))
+		
 		self.assertContains(response, 'habit 1')
 		self.assertContains(response, 'habit 2')
+		self.assertNotContains(response, 'other habit 1')
+		self.assertNotContains(response, 'other habit 2')
+	
+	def test_passes_correct_habit_list_to_template(self):
+		other_habit_list = HabitList.objects.create()
+		correct_habit_list = HabitList.objects.create()
+		response = self.client.get('/habit_lists/%d/' % (correct_habit_list.id,))
+		self.assertEqual(response.context['habit_list'], correct_habit_list)
 
 class NewListTest(TestCase):
 
-	def test__can_save_a_POST_request(self):
+	def test_can_save_a_POST_request_to_an_existing_habit_list(self):
+		other_habit_list = HabitList.objects.create()
+		correct_habit_list = HabitList.objects.create()
+
 		self.client.post(
-			'/habit_lists/new',
+			'/habit_lists/%d/add_habit' % (correct_habit_list.id,),
 			data={'habit_text': 'A new habit'}
 		) 		
+
 		self.assertEqual(Habit.objects.count(), 1)
 		new_habit = Habit.objects.first()
 		self.assertEqual(new_habit.text, 'A new habit')
+		self.assertEqual(new_habit.habit_list, correct_habit_list)
 
-	def test_redirects_after_POST(self):
+	def test_redirects_to_habit_list_view(self):
+		other_habit_list = HabitList.objects.create()
+		correct_habit_list = HabitList.objects.create()
+
 		response = self.client.post(
-			'/habit_lists/new',
+			'/habit_lists/%d/add_habit' % (correct_habit_list.id,),
 			data={'habit_text': 'A new habit'}
 		) 		
-		self.assertRedirects(response, '/habit_lists/only-habit-list/')
+
+		self.assertRedirects(response, '/habit_lists/%d/' % (correct_habit_list.id,))
 
 
